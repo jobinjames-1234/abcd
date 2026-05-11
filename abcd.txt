@@ -1,0 +1,1106 @@
+import java.io.FileWriter;
+import java.io.IOException;
+
+// Abstract Class
+abstract class Person {
+    abstract void displayInfo();
+}
+
+// User Defined Exception
+class InvalidMarkException extends Exception {
+    InvalidMarkException(String msg) {
+        super(msg);
+    }
+}
+
+// Student Class
+class Student extends Person {
+
+    public int studentId;
+    protected String name;
+    private String department;
+    int marks;
+
+    // Constructors
+    Student() {
+        studentId = 0;
+        name = "Unknown";
+        department = "None";
+        marks = 0;
+    }
+
+    Student(int id, String n, String d, int m)
+            throws InvalidMarkException {
+
+        if (m < 0 || m > 100)
+            throw new InvalidMarkException("Invalid Marks");
+
+        studentId = id;
+        name = n;
+        department = d;
+        marks = m;
+    }
+
+    // Method Overloading
+    int calculateTotal(int a, int b, int c) {
+        return a + b + c;
+    }
+
+    int calculateTotal(int a, int b,
+                       int c, int d, int e) {
+        return a + b + c + d + e;
+    }
+
+    void displayStudent() {
+        String report =
+                "\nID : " + studentId +
+                "\nName : " + name +
+                "\nDepartment : " + department +
+                "\nMarks : " + marks;
+
+        System.out.println(report);
+    }
+
+    // File Handling
+    void saveReport() {
+
+        try {
+
+            FileWriter fw =
+                    new FileWriter("student.txt", true);
+
+            fw.write("ID : " + studentId + "\n");
+            fw.write("Name : " + name + "\n");
+            fw.write("Marks : " + marks + "\n\n");
+
+            fw.close();
+
+            System.out.println("Report Saved");
+
+        } catch (IOException e) {
+            System.out.println(e);
+        }
+    }
+
+    void displayInfo() {
+        displayStudent();
+    }
+}
+
+// Separate Result Class
+class Result {
+
+    void generateResult(int marks) {
+
+        if (marks >= 50)
+            System.out.println("PASS");
+        else
+            System.out.println("FAIL");
+
+        if (marks >= 90)
+            System.out.println("Grade A");
+        else if (marks >= 75)
+            System.out.println("Grade B");
+        else
+            System.out.println("Grade C");
+    }
+}
+
+// Inheritance
+class MCAStudent extends Student {
+
+    MCAStudent(int id, String n,
+               String d, int m)
+            throws InvalidMarkException {
+
+        super(id, n, d, m);
+    }
+
+    // Method Overriding
+    @Override
+    void displayStudent() {
+
+        System.out.println("MCA Student Details");
+        super.displayStudent();
+    }
+}
+
+// Multithreading
+class ReportThread extends Thread {
+    public void run() {
+        System.out.println("Generating Report...");
+    }
+}
+
+class SaveThread extends Thread {
+
+    Student s;
+
+    SaveThread(Student s) {
+        this.s = s;
+    }
+
+    public void run() {
+        s.saveReport();
+    }
+}
+
+// Main Class
+public class StudentManagement {
+
+    public static void main(String[] args) {
+
+        try {
+
+            MCAStudent s1 =
+                    new MCAStudent(
+                            101,
+                            "Rahul",
+                            "MCA",
+                            85);
+
+            Student arr[] = new Student[2];
+            arr[0] = s1;
+
+            s1.displayStudent();
+
+            System.out.println(
+                    "3 Subject Total : "
+                            + s1.calculateTotal(80, 70, 90));
+
+            System.out.println(
+                    "5 Subject Total : "
+                            + s1.calculateTotal(
+                                    80, 70, 90, 88, 95));
+
+            Result r = new Result();
+            r.generateResult(s1.marks);
+
+            ReportThread t1 = new ReportThread();
+            SaveThread t2 = new SaveThread(s1);
+
+            t1.start();
+            t2.start();
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+}
+
+======================
+import java.io.FileWriter;
+import java.io.IOException;
+
+abstract class BankUser {
+    abstract void userType();
+}
+
+class InsufficientBalanceException extends Exception {
+
+    InsufficientBalanceException(String msg) {
+        super(msg);
+    }
+}
+
+class Account extends BankUser {
+
+    int accNo;
+    String customerName;
+    double balance;
+
+    Account() {
+        accNo = 0;
+        customerName = "Unknown";
+        balance = 0;
+    }
+
+    Account(int a, String n, double b) {
+        accNo = a;
+        customerName = n;
+        balance = b;
+    }
+
+    // Method Overloading
+    void deposit(int amount) {
+        balance += amount;
+    }
+
+    void deposit(double amount) {
+        balance += amount;
+    }
+
+    void withdraw(double amount)
+            throws InsufficientBalanceException {
+
+        if (amount > balance)
+            throw new InsufficientBalanceException(
+                    "Insufficient Balance");
+
+        balance -= amount;
+    }
+
+    void display() {
+
+        String summary =
+                "\nAccount No : " + accNo +
+                "\nCustomer : " + customerName +
+                "\nBalance : " + balance;
+
+        System.out.println(summary);
+    }
+
+    void saveTransaction() {
+
+        try {
+
+            FileWriter fw =
+                    new FileWriter("transaction.txt", true);
+
+            fw.write(customerName +
+                    " " + balance + "\n");
+
+            fw.close();
+
+        } catch (IOException e) {
+            System.out.println(e);
+        }
+    }
+
+    void userType() {
+        System.out.println("Bank User");
+    }
+}
+
+class SavingsAccount extends Account {
+
+    SavingsAccount(int a, String n, double b) {
+        super(a, n, b);
+    }
+
+    @Override
+    void withdraw(double amount)
+            throws InsufficientBalanceException {
+
+        if (balance - amount < 500)
+            throw new InsufficientBalanceException(
+                    "Minimum Balance Required");
+
+        balance -= amount;
+    }
+}
+
+class CurrentAccount extends Account {
+
+    CurrentAccount(int a, String n, double b) {
+        super(a, n, b);
+    }
+
+    @Override
+    void withdraw(double amount)
+            throws InsufficientBalanceException {
+
+        balance -= amount;
+    }
+}
+
+class BalanceThread extends Thread {
+
+    Account a;
+
+    BalanceThread(Account a) {
+        this.a = a;
+    }
+
+    public void run() {
+        System.out.println("Checking Balance...");
+    }
+}
+
+class TransactionThread extends Thread {
+
+    public void run() {
+        System.out.println("Processing Transaction...");
+    }
+}
+
+public class BankingApp {
+
+    public static void main(String[] args) {
+
+        try {
+
+            SavingsAccount s =
+                    new SavingsAccount(
+                            1001,
+                            "Anu",
+                            5000);
+
+            Account arr[] = new Account[2];
+            arr[0] = s;
+
+            s.deposit(500);
+            s.deposit(250.5);
+
+            s.withdraw(1000);
+
+            s.display();
+
+            s.saveTransaction();
+
+            BalanceThread t1 =
+                    new BalanceThread(s);
+
+            TransactionThread t2 =
+                    new TransactionThread();
+
+            t1.start();
+            t2.start();
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+}
+
+==================
+
+import java.io.FileWriter;
+import java.io.IOException;
+
+abstract class HospitalMember {
+    abstract void role();
+}
+
+class InvalidPatientException extends Exception {
+
+    InvalidPatientException(String msg) {
+        super(msg);
+    }
+}
+
+class Patient extends HospitalMember {
+
+    int patientId;
+    String name;
+    int age;
+    String disease;
+
+    Patient(int id, String n,
+            int a, String d)
+            throws InvalidPatientException {
+
+        if (a <= 0)
+            throw new InvalidPatientException(
+                    "Invalid Age");
+
+        patientId = id;
+        name = n;
+        age = a;
+        disease = d;
+    }
+
+    // Method Overloading
+    double calculateCharge(double consultation) {
+        return consultation;
+    }
+
+    double calculateCharge(double consultation,
+                           double medicine) {
+        return consultation + medicine;
+    }
+
+    void display() {
+
+        String details =
+                "\nID : " + patientId +
+                "\nName : " + name +
+                "\nDisease : " + disease;
+
+        System.out.println(details);
+    }
+
+    void saveData() {
+
+        try {
+
+            FileWriter fw =
+                    new FileWriter("patient.txt", true);
+
+            fw.write(name + " " + disease + "\n");
+
+            fw.close();
+
+        } catch (IOException e) {
+            System.out.println(e);
+        }
+    }
+
+    void role() {
+        System.out.println("Patient");
+    }
+}
+
+class MedicalReport {
+
+    void generate() {
+        System.out.println("Medical Report Generated");
+    }
+}
+
+class InPatient extends Patient {
+
+    InPatient(int id, String n,
+              int a, String d)
+            throws InvalidPatientException {
+
+        super(id, n, a, d);
+    }
+
+    double roomCharge(int days) {
+        return days * 1000;
+    }
+
+    @Override
+    void display() {
+
+        System.out.println("InPatient Details");
+        super.display();
+    }
+}
+
+class BillThread extends Thread {
+    public void run() {
+        System.out.println("Generating Bill...");
+    }
+}
+
+class MonitorThread extends Thread {
+    public void run() {
+        System.out.println("Monitoring Patient...");
+    }
+}
+
+public class HospitalSystem {
+
+    public static void main(String[] args) {
+
+        try {
+
+            InPatient p =
+                    new InPatient(
+                            1,
+                            "John",
+                            35,
+                            "Fever");
+
+            Patient arr[] = new Patient[2];
+            arr[0] = p;
+
+            p.display();
+
+            System.out.println(
+                    p.calculateCharge(500));
+
+            System.out.println(
+                    p.calculateCharge(500, 200));
+
+            MedicalReport r =
+                    new MedicalReport();
+
+            r.generate();
+
+            p.saveData();
+
+            BillThread t1 =
+                    new BillThread();
+
+            MonitorThread t2 =
+                    new MonitorThread();
+
+            t1.start();
+            t2.start();
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+}
+
+====================
+
+import java.io.FileWriter;
+import java.io.IOException;
+
+// Abstract Class
+abstract class Staff {
+    abstract void role();
+}
+
+// User Defined Exception
+class InvalidSalaryException extends Exception {
+
+    InvalidSalaryException(String msg) {
+        super(msg);
+    }
+}
+
+// Employee Class
+class Employee extends Staff {
+
+    int empId;
+    String name;
+    String designation;
+    double basicSalary;
+
+    // Constructor
+    Employee(int id, String n,
+             String d, double salary)
+            throws InvalidSalaryException {
+
+        if (salary < 0)
+            throw new InvalidSalaryException(
+                    "Invalid Salary");
+
+        empId = id;
+        name = n;
+        designation = d;
+        basicSalary = salary;
+    }
+
+    // Method Overloading
+    double calculateSalary(double bonus) {
+        return basicSalary + bonus;
+    }
+
+    double calculateSalary(double bonus,
+                           double overtime) {
+        return basicSalary + bonus + overtime;
+    }
+
+    void display() {
+
+        String slip =
+                "\nID : " + empId +
+                "\nName : " + name +
+                "\nDesignation : " + designation +
+                "\nSalary : " + basicSalary;
+
+        System.out.println(slip);
+    }
+
+    // File Handling
+    void saveReport() {
+
+        try {
+
+            FileWriter fw =
+                    new FileWriter("payroll.txt", true);
+
+            fw.write(name +
+                    " " + basicSalary + "\n");
+
+            fw.close();
+
+            System.out.println("Payroll Saved");
+
+        } catch (IOException e) {
+            System.out.println(e);
+        }
+    }
+
+    void role() {
+        System.out.println("Employee");
+    }
+}
+
+// Separate Payroll Class
+class Payroll {
+
+    void generateSlip() {
+        System.out.println("Salary Slip Generated");
+    }
+}
+
+// Inheritance
+class Manager extends Employee {
+
+    Manager(int id, String n,
+            String d, double s)
+            throws InvalidSalaryException {
+
+        super(id, n, d, s);
+    }
+
+    // Method Overriding
+    @Override
+    double calculateSalary(double bonus) {
+        return basicSalary + bonus + 5000;
+    }
+}
+
+class Developer extends Employee {
+
+    Developer(int id, String n,
+              String d, double s)
+            throws InvalidSalaryException {
+
+        super(id, n, d, s);
+    }
+
+    @Override
+    double calculateSalary(double bonus) {
+        return basicSalary + bonus + 3000;
+    }
+}
+
+// Multithreading
+class SalaryThread extends Thread {
+
+    public void run() {
+        System.out.println("Processing Salary...");
+    }
+}
+
+class ReportThread extends Thread {
+
+    public void run() {
+        System.out.println("Printing Report...");
+    }
+}
+
+// Main Class
+public class PayrollSystem {
+
+    public static void main(String[] args) {
+
+        try {
+
+            Manager m =
+                    new Manager(
+                            1,
+                            "Arun",
+                            "Manager",
+                            50000);
+
+            Employee arr[] = new Employee[2];
+            arr[0] = m;
+
+            m.display();
+
+            System.out.println(
+                    "Salary with Bonus : "
+                            + m.calculateSalary(5000));
+
+            System.out.println(
+                    "Salary with Bonus and OT : "
+                            + m.calculateSalary(5000, 2000));
+
+            Payroll p = new Payroll();
+            p.generateSlip();
+
+            m.saveReport();
+
+            SalaryThread t1 =
+                    new SalaryThread();
+
+            ReportThread t2 =
+                    new ReportThread();
+
+            t1.start();
+            t2.start();
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+}
+
+======================
+
+import java.io.FileWriter;
+import java.io.IOException;
+
+// Abstract Class
+abstract class LibraryItem {
+    abstract void display();
+}
+
+// User Defined Exception
+class InvalidBookException extends Exception {
+
+    InvalidBookException(String msg) {
+        super(msg);
+    }
+}
+
+// Book Class
+class Book extends LibraryItem {
+
+    int bookId;
+    String title;
+    String author;
+    boolean available;
+
+    // Constructor
+    Book(int id, String t,
+         String a, boolean av) {
+
+        bookId = id;
+        title = t;
+        author = a;
+        available = av;
+    }
+
+    // Method Overloading
+    void search(String title) {
+        System.out.println("Searching Book by Title");
+    }
+
+    void search(String title,
+                String author) {
+        System.out.println("Searching Book by Author");
+    }
+
+    void issueBook()
+            throws InvalidBookException {
+
+        if (!available)
+            throw new InvalidBookException(
+                    "Book Not Available");
+
+        available = false;
+
+        System.out.println("Book Issued");
+    }
+
+    void display() {
+
+        String details =
+                "\nBook ID : " + bookId +
+                "\nTitle : " + title +
+                "\nAuthor : " + author;
+
+        System.out.println(details);
+    }
+
+    // File Handling
+    void saveBook() {
+
+        try {
+
+            FileWriter fw =
+                    new FileWriter("library.txt", true);
+
+            fw.write(title + "\n");
+
+            fw.close();
+
+            System.out.println("Book Saved");
+
+        } catch (IOException e) {
+            System.out.println(e);
+        }
+    }
+}
+
+// Separate Rules Class
+class LibraryRules {
+
+    static void showRules() {
+        System.out.println(
+                "Return books within 14 days");
+    }
+}
+
+// Inheritance
+class PrintedBook extends Book {
+
+    PrintedBook(int id, String t,
+                String a, boolean av) {
+
+        super(id, t, a, av);
+    }
+
+    // Method Overriding
+    @Override
+    void display() {
+
+        System.out.println("Printed Book Details");
+        super.display();
+    }
+}
+
+class DigitalBook extends Book {
+
+    DigitalBook(int id, String t,
+                String a, boolean av) {
+
+        super(id, t, a, av);
+    }
+
+    @Override
+    void display() {
+
+        System.out.println("Digital Book Details");
+        super.display();
+    }
+}
+
+// Multithreading
+class IssueThread extends Thread {
+
+    public void run() {
+        System.out.println("Book Issue Processing...");
+    }
+}
+
+class ReturnThread extends Thread {
+
+    public void run() {
+        System.out.println("Book Return Processing...");
+    }
+}
+
+// Main Class
+public class LibrarySystem {
+
+    public static void main(String[] args) {
+
+        try {
+
+            PrintedBook b =
+                    new PrintedBook(
+                            1,
+                            "Java Programming",
+                            "James Gosling",
+                            true);
+
+            Book arr[] = new Book[2];
+            arr[0] = b;
+
+            b.display();
+
+            b.search("Java");
+
+            b.issueBook();
+
+            LibraryRules.showRules();
+
+            b.saveBook();
+
+            IssueThread t1 =
+                    new IssueThread();
+
+            ReturnThread t2 =
+                    new ReturnThread();
+
+            t1.start();
+            t2.start();
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+}
+
+==================
+
+import java.io.FileWriter;
+import java.io.IOException;
+
+// Abstract Class
+abstract class Order {
+    abstract double calculateBill();
+}
+
+// User Defined Exception
+class InvalidQuantityException extends Exception {
+
+    InvalidQuantityException(String msg) {
+        super(msg);
+    }
+}
+
+// FoodOrder Class
+class FoodOrder extends Order {
+
+    int orderId;
+    String customerName;
+    String foodItem;
+    int quantity;
+
+    // Constructor
+    FoodOrder(int id,
+              String c,
+              String item,
+              int q)
+            throws InvalidQuantityException {
+
+        if (q <= 0)
+            throw new InvalidQuantityException(
+                    "Invalid Quantity");
+
+        orderId = id;
+        customerName = c;
+        foodItem = item;
+        quantity = q;
+    }
+
+    // Method Overloading
+    double calculateBill(int price) {
+        return quantity * price;
+    }
+
+    double calculateBill(int price,
+                         int expressCharge) {
+        return quantity * price + expressCharge;
+    }
+
+    void display() {
+
+        String invoice =
+                "\nOrder ID : " + orderId +
+                "\nCustomer : " + customerName +
+                "\nFood Item : " + foodItem +
+                "\nQuantity : " + quantity;
+
+        System.out.println(invoice);
+    }
+
+    // File Handling
+    void saveOrder() {
+
+        try {
+
+            FileWriter fw =
+                    new FileWriter("orders.txt", true);
+
+            fw.write(customerName +
+                    " " + foodItem + "\n");
+
+            fw.close();
+
+            System.out.println("Order Saved");
+
+        } catch (IOException e) {
+            System.out.println(e);
+        }
+    }
+
+    double calculateBill() {
+        return 0;
+    }
+}
+
+// Separate Bill Class
+class BillDetails {
+
+    void generateBill() {
+        System.out.println("Invoice Generated");
+    }
+}
+
+// Inheritance
+class VegOrder extends FoodOrder {
+
+    VegOrder(int id,
+             String c,
+             String item,
+             int q)
+            throws InvalidQuantityException {
+
+        super(id, c, item, q);
+    }
+
+    // Method Overriding
+    @Override
+    double calculateBill() {
+        return quantity * 100;
+    }
+}
+
+class NonVegOrder extends FoodOrder {
+
+    NonVegOrder(int id,
+                String c,
+                String item,
+                int q)
+            throws InvalidQuantityException {
+
+        super(id, c, item, q);
+    }
+
+    @Override
+    double calculateBill() {
+        return quantity * 200;
+    }
+}
+
+// Multithreading
+class CookingThread extends Thread {
+
+    public void run() {
+        System.out.println("Cooking Started...");
+    }
+}
+
+class DeliveryThread extends Thread {
+
+    public void run() {
+        System.out.println("Delivery Tracking...");
+    }
+}
+
+// Main Class
+public class FoodDeliverySystem {
+
+    public static void main(String[] args) {
+
+        try {
+
+            VegOrder v =
+                    new VegOrder(
+                            1,
+                            "Akhil",
+                            "Veg Burger",
+                            2);
+
+            FoodOrder arr[] = new FoodOrder[2];
+            arr[0] = v;
+
+            v.display();
+
+            System.out.println(
+                    "Normal Bill : "
+                            + v.calculateBill(100));
+
+            System.out.println(
+                    "Express Bill : "
+                            + v.calculateBill(100, 50));
+
+            System.out.println(
+                    "Final Bill : "
+                            + v.calculateBill());
+
+            BillDetails b =
+                    new BillDetails();
+
+            b.generateBill();
+
+            v.saveOrder();
+
+            CookingThread t1 =
+                    new CookingThread();
+
+            DeliveryThread t2 =
+                    new DeliveryThread();
+
+            t1.start();
+            t2.start();
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+}
