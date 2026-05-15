@@ -1,0 +1,1948 @@
+3)------------------------------------------------------------
+
+
+import java.io.*;
+import java.util.*;
+
+// ABSTRACT CLASS
+abstract class HospitalMember {
+
+    protected int id;
+    protected String name;
+
+    public HospitalMember(int id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    abstract double calculateRoomCharge(int days);
+}
+
+// USER DEFINED EXCEPTION
+class InvalidDataException extends Exception {
+
+    public InvalidDataException(String message) {
+        super(message);
+    }
+}
+
+// PATIENT CLASS
+class Patient extends HospitalMember {
+
+    private int age;
+    private String disease;
+
+    static Patient[] patients = new Patient[100];
+    static int count = 0;
+
+    // CONSTRUCTOR
+    public Patient(int id, String name, int age, String disease)
+            throws InvalidDataException {
+
+        super(id, name);
+
+        if (age <= 0 || age > 120) {
+            throw new InvalidDataException("Invalid Patient Age!");
+        }
+
+        this.age = age;
+        this.disease = disease;
+    }
+
+    // METHOD OVERLOADING
+    public double calculateTreatmentCharge(double consultation) {
+        return consultation;
+    }
+
+    public double calculateTreatmentCharge(double consultation, double medicine) {
+        return consultation + medicine;
+    }
+
+    // STRING OPERATIONS
+    public String generatePrescription() {
+
+        String prescription = "\n----- PRESCRIPTION -----\n";
+        prescription += "Patient ID : " + id + "\n";
+        prescription += "Name       : " + name.toUpperCase() + "\n";
+        prescription += "Disease    : " + disease.toLowerCase() + "\n";
+        prescription += "------------------------";
+
+        return prescription;
+    }
+
+    // MEDICAL REPORT METHOD
+    public void displayMedicalReport() {
+
+        System.out.println("\n===== MEDICAL REPORT =====");
+        System.out.println("Patient ID : " + id);
+        System.out.println("Name       : " + name);
+        System.out.println("Age        : " + age);
+        System.out.println("Disease    : " + disease);
+        System.out.println("==========================");
+    }
+
+    @Override
+    double calculateRoomCharge(int days) {
+        return 0;
+    }
+
+    // FILE HANDLING
+    public void saveToFile(double bill) {
+
+        try {
+
+            FileWriter fw = new FileWriter("patients.txt", true);
+
+            fw.write("Patient ID : " + id + "\n");
+            fw.write("Name       : " + name + "\n");
+            fw.write("Disease    : " + disease + "\n");
+            fw.write("Bill       : " + bill + "\n");
+            fw.write("--------------------------\n");
+
+            fw.close();
+
+            System.out.println("Patient details saved to file!");
+
+        } catch (IOException e) {
+
+            System.out.println("File Error!");
+        }
+    }
+
+    public void display() {
+
+        System.out.println("\nPatient ID : " + id);
+        System.out.println("Name       : " + name);
+        System.out.println("Age        : " + age);
+        System.out.println("Disease    : " + disease);
+    }
+}
+
+// INHERITANCE
+class InPatient extends Patient {
+
+    private int roomNo;
+
+    public InPatient(int id, String name, int age,
+                     String disease, int roomNo)
+            throws InvalidDataException {
+
+        super(id, name, age, disease);
+
+        this.roomNo = roomNo;
+    }
+
+    // METHOD OVERRIDING
+    @Override
+    double calculateRoomCharge(int days) {
+
+        return days * 2000;
+    }
+
+    public void displayRoom() {
+
+        System.out.println("Room No : " + roomNo);
+    }
+}
+
+// MULTITHREADING - BILL GENERATION
+class BillGeneration extends Thread {
+
+    private double amount;
+
+    public BillGeneration(double amount) {
+        this.amount = amount;
+    }
+
+    @Override
+    public void run() {
+
+        System.out.println("\nGenerating Bill...");
+
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+        }
+
+        System.out.println("Final Bill Amount : " + amount);
+    }
+}
+
+// MULTITHREADING - PATIENT MONITORING
+class PatientMonitoring extends Thread {
+
+    private String patientName;
+
+    public PatientMonitoring(String patientName) {
+        this.patientName = patientName;
+    }
+
+    @Override
+    public void run() {
+
+        for (int i = 1; i <= 3; i++) {
+
+            System.out.println("Monitoring Patient : " + patientName);
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+            }
+        }
+    }
+}
+
+// MAIN CLASS
+public class HospitalManagementSystem {
+
+    public static void main(String[] args) {
+
+        Scanner sc = new Scanner(System.in);
+
+        int choice;
+
+        do {
+
+            System.out.println("\n===== HOSPITAL MANAGEMENT SYSTEM =====");
+            System.out.println("1. Add Patient");
+            System.out.println("2. Display Patients");
+            System.out.println("3. Generate Prescription");
+            System.out.println("4. Calculate Bill");
+            System.out.println("5. Medical Report");
+            System.out.println("6. InPatient Room Charge");
+            System.out.println("7. Exit");
+
+            System.out.print("Enter Choice : ");
+            choice = sc.nextInt();
+
+            switch (choice) {
+
+                case 1:
+
+                    try {
+
+                        System.out.print("Enter Patient ID : ");
+                        int id = sc.nextInt();
+                        sc.nextLine();
+
+                        System.out.print("Enter Name : ");
+                        String name = sc.nextLine();
+
+                        System.out.print("Enter Age : ");
+                        int age = sc.nextInt();
+                        sc.nextLine();
+
+                        System.out.print("Enter Disease : ");
+                        String disease = sc.nextLine();
+
+                        Patient p = new Patient(id, name, age, disease);
+
+                        Patient.patients[Patient.count] = p;
+                        Patient.count++;
+
+                        System.out.println("Patient Added Successfully!");
+
+                    } catch (InvalidDataException e) {
+
+                        System.out.println(e.getMessage());
+                    }
+
+                    break;
+
+                case 2:
+
+                    if (Patient.count == 0) {
+
+                        System.out.println("No Patient Records!");
+
+                    } else {
+
+                        for (int i = 0; i < Patient.count; i++) {
+
+                            Patient.patients[i].display();
+                        }
+                    }
+
+                    break;
+
+                case 3:
+
+                    if (Patient.count == 0) {
+
+                        System.out.println("No Patients Available!");
+
+                    } else {
+
+                        System.out.print("Enter Patient Index : ");
+                        int index = sc.nextInt();
+
+                        System.out.println(
+                                Patient.patients[index]
+                                        .generatePrescription());
+                    }
+
+                    break;
+
+                case 4:
+
+                    try {
+
+                        System.out.print("Consultation Charge : ");
+                        double consultation = sc.nextDouble();
+
+                        System.out.print("Medicine Charge : ");
+                        double medicine = sc.nextDouble();
+
+                        if (consultation < 0 || medicine < 0) {
+
+                            throw new InvalidDataException(
+                                    "Invalid Bill Amount!");
+                        }
+
+                        double total =
+                                Patient.patients[0]
+                                        .calculateTreatmentCharge(
+                                                consultation,
+                                                medicine);
+
+                        // THREADS
+                        BillGeneration bg =
+                                new BillGeneration(total);
+
+                        PatientMonitoring pm =
+                                new PatientMonitoring(
+                                        Patient.patients[0].name);
+
+                        bg.start();
+                        pm.start();
+
+                        // FILE SAVE
+                        Patient.patients[0].saveToFile(total);
+
+                    } catch (InvalidDataException e) {
+
+                        System.out.println(e.getMessage());
+                    }
+
+                    break;
+
+                case 5:
+
+                    if (Patient.count == 0) {
+
+                        System.out.println("No Patients Available!");
+
+                    } else {
+
+                        Patient.patients[0]
+                                .displayMedicalReport();
+                    }
+
+                    break;
+
+                case 6:
+
+                    try {
+
+                        System.out.print("Enter ID : ");
+                        int id = sc.nextInt();
+                        sc.nextLine();
+
+                        System.out.print("Enter Name : ");
+                        String name = sc.nextLine();
+
+                        System.out.print("Enter Age : ");
+                        int age = sc.nextInt();
+                        sc.nextLine();
+
+                        System.out.print("Enter Disease : ");
+                        String disease = sc.nextLine();
+
+                        System.out.print("Enter Room No : ");
+                        int room = sc.nextInt();
+
+                        System.out.print("Enter Days Stayed : ");
+                        int days = sc.nextInt();
+
+                        InPatient ip =
+                                new InPatient(id, name,
+                                        age, disease, room);
+
+                        double roomCharge =
+                                ip.calculateRoomCharge(days);
+
+                        ip.display();
+                        ip.displayRoom();
+
+                        System.out.println(
+                                "Room Charge : " + roomCharge);
+
+                    } catch (InvalidDataException e) {
+
+                        System.out.println(e.getMessage());
+                    }
+
+                    break;
+
+                case 7:
+
+                    System.out.println("Exiting Program...");
+                    break;
+
+                default:
+
+                    System.out.println("Invalid Choice!");
+            }
+
+        } while (choice != 7);
+
+        sc.close();
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+4)-------------------------------------------------------------------
+import java.io.*;
+import java.util.*;
+
+// ABSTRACT CLASS
+abstract class Staff {
+
+    protected int empId;
+    protected String name;
+
+    public Staff(int empId, String name) {
+        this.empId = empId;
+        this.name = name;
+    }
+
+    abstract double calculateSalary();
+}
+
+// USER DEFINED EXCEPTION
+class InvalidSalaryException extends Exception {
+
+    public InvalidSalaryException(String message) {
+        super(message);
+    }
+}
+
+// EMPLOYEE CLASS
+class Employee extends Staff {
+
+    protected String designation;
+    protected double basicSalary;
+
+    static Employee[] employees = new Employee[100];
+    static int count = 0;
+
+    // CONSTRUCTOR
+    public Employee(int empId, String name,
+                    String designation,
+                    double basicSalary)
+            throws InvalidSalaryException {
+
+        super(empId, name);
+
+        if (basicSalary <= 0) {
+            throw new InvalidSalaryException(
+                    "Invalid Salary Amount!");
+        }
+
+        this.designation = designation;
+        this.basicSalary = basicSalary;
+    }
+
+    // METHOD OVERLOADING
+    public double calculateSalary(double bonus) {
+        return basicSalary + bonus;
+    }
+
+    public double calculateSalary(double bonus,
+                                  double overtime) {
+
+        return basicSalary + bonus + overtime;
+    }
+
+    @Override
+    double calculateSalary() {
+        return basicSalary;
+    }
+
+    // STRING OPERATIONS
+    public String generateSalarySlip(double totalSalary) {
+
+        String slip = "\n======= SALARY SLIP =======\n";
+        slip += "Employee ID   : " + empId + "\n";
+        slip += "Name          : "
+                + name.toUpperCase() + "\n";
+        slip += "Designation   : "
+                + designation.toLowerCase() + "\n";
+        slip += "Total Salary  : " + totalSalary + "\n";
+        slip += "===========================\n";
+
+        return slip;
+    }
+
+    // PAYROLL METHOD
+    public void printPayroll(double salary) {
+
+        System.out.println(
+                "\nPayroll Generated for "
+                        + name);
+
+        System.out.println(
+                "Final Salary : " + salary);
+    }
+
+    // DISPLAY METHOD
+    public void display() {
+
+        System.out.println("\nEmployee ID : " + empId);
+        System.out.println("Name        : " + name);
+        System.out.println("Designation : " + designation);
+        System.out.println("Basic Salary: " + basicSalary);
+    }
+
+    // FILE HANDLING
+    public void saveToFile(double totalSalary) {
+
+        try {
+
+            FileWriter fw =
+                    new FileWriter("payroll_report.txt", true);
+
+            fw.write("Employee ID : " + empId + "\n");
+            fw.write("Name        : " + name + "\n");
+            fw.write("Designation : " + designation + "\n");
+            fw.write("Salary      : "
+                    + totalSalary + "\n");
+            fw.write("----------------------------\n");
+
+            fw.close();
+
+            System.out.println(
+                    "Payroll Report Saved!");
+
+        } catch (IOException e) {
+
+            System.out.println("File Error!");
+        }
+    }
+}
+
+// MANAGER CLASS
+class Manager extends Employee {
+
+    public Manager(int empId, String name,
+                   double basicSalary)
+            throws InvalidSalaryException {
+
+        super(empId, name,
+                "Manager", basicSalary);
+    }
+
+    // METHOD OVERRIDING
+    @Override
+    double calculateSalary() {
+
+        return basicSalary + 10000;
+    }
+}
+
+// DEVELOPER CLASS
+class Developer extends Employee {
+
+    public Developer(int empId, String name,
+                     double basicSalary)
+            throws InvalidSalaryException {
+
+        super(empId, name,
+                "Developer", basicSalary);
+    }
+
+    // METHOD OVERRIDING
+    @Override
+    double calculateSalary() {
+
+        return basicSalary + 5000;
+    }
+}
+
+// MULTITHREADING - SALARY PROCESSING
+class SalaryProcessing extends Thread {
+
+    private String employeeName;
+
+    public SalaryProcessing(String employeeName) {
+        this.employeeName = employeeName;
+    }
+
+    @Override
+    public void run() {
+
+        System.out.println(
+                "\nProcessing Salary for "
+                        + employeeName);
+
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+        }
+
+        System.out.println(
+                "Salary Process Completed!");
+    }
+}
+
+// MULTITHREADING - REPORT PRINTING
+class ReportPrinting extends Thread {
+
+    @Override
+    public void run() {
+
+        System.out.println(
+                "\nPrinting Payroll Report...");
+
+        try {
+            Thread.sleep(1500);
+        } catch (InterruptedException e) {
+        }
+
+        System.out.println(
+                "Report Printed Successfully!");
+    }
+}
+
+// MAIN CLASS
+public class EmployeePayrollSystem {
+
+    public static void main(String[] args) {
+
+        Scanner sc = new Scanner(System.in);
+
+        int choice;
+
+        do {
+
+            System.out.println(
+                    "\n===== EMPLOYEE PAYROLL SYSTEM =====");
+
+            System.out.println("1. Add Employee");
+            System.out.println("2. Display Employees");
+            System.out.println("3. Generate Salary Slip");
+            System.out.println("4. Manager Salary");
+            System.out.println("5. Developer Salary");
+            System.out.println("6. Exit");
+
+            System.out.print("Enter Choice : ");
+            choice = sc.nextInt();
+
+            switch (choice) {
+
+                case 1:
+
+                    try {
+
+                        System.out.print(
+                                "Enter Employee ID : ");
+                        int id = sc.nextInt();
+                        sc.nextLine();
+
+                        System.out.print(
+                                "Enter Name : ");
+                        String name = sc.nextLine();
+
+                        System.out.print(
+                                "Enter Designation : ");
+                        String desig = sc.nextLine();
+
+                        System.out.print(
+                                "Enter Basic Salary : ");
+                        double salary = sc.nextDouble();
+
+                        Employee e =
+                                new Employee(id, name,
+                                        desig, salary);
+
+                        Employee.employees[
+                                Employee.count] = e;
+
+                        Employee.count++;
+
+                        System.out.println(
+                                "Employee Added Successfully!");
+
+                    } catch (InvalidSalaryException e) {
+
+                        System.out.println(
+                                e.getMessage());
+                    }
+
+                    break;
+
+                case 2:
+
+                    if (Employee.count == 0) {
+
+                        System.out.println(
+                                "No Employee Records!");
+
+                    } else {
+
+                        for (int i = 0;
+                             i < Employee.count; i++) {
+
+                            Employee.employees[i]
+                                    .display();
+                        }
+                    }
+
+                    break;
+
+                case 3:
+
+                    if (Employee.count == 0) {
+
+                        System.out.println(
+                                "No Employees Available!");
+
+                    } else {
+
+                        try {
+
+                            System.out.print(
+                                    "Enter Bonus : ");
+                            double bonus =
+                                    sc.nextDouble();
+
+                            System.out.print(
+                                    "Enter Overtime : ");
+                            double overtime =
+                                    sc.nextDouble();
+
+                            double totalSalary =
+                                    Employee.employees[0]
+                                            .calculateSalary(
+                                                    bonus,
+                                                    overtime);
+
+                            // SALARY SLIP
+                            System.out.println(
+                                    Employee.employees[0]
+                                            .generateSalarySlip(
+                                                    totalSalary));
+
+                            // PAYROLL METHOD
+                            Employee.employees[0]
+                                    .printPayroll(
+                                            totalSalary);
+
+                            // THREADS
+                            SalaryProcessing sp =
+                                    new SalaryProcessing(
+                                            Employee.employees[0].name);
+
+                            ReportPrinting rp =
+                                    new ReportPrinting();
+
+                            sp.start();
+                            rp.start();
+
+                            // SAVE FILE
+                            Employee.employees[0]
+                                    .saveToFile(
+                                            totalSalary);
+
+                        } catch (Exception e) {
+
+                            System.out.println(
+                                    "Error!");
+                        }
+                    }
+
+                    break;
+
+                case 4:
+
+                    try {
+
+                        System.out.print(
+                                "Enter Manager ID : ");
+                        int id = sc.nextInt();
+                        sc.nextLine();
+
+                        System.out.print(
+                                "Enter Name : ");
+                        String name = sc.nextLine();
+
+                        System.out.print(
+                                "Enter Basic Salary : ");
+                        double salary = sc.nextDouble();
+
+                        Manager m =
+                                new Manager(id,
+                                        name,
+                                        salary);
+
+                        double total =
+                                m.calculateSalary();
+
+                        m.display();
+
+                        System.out.println(
+                                "Manager Salary : "
+                                        + total);
+
+                    } catch (InvalidSalaryException e) {
+
+                        System.out.println(
+                                e.getMessage());
+                    }
+
+                    break;
+
+                case 5:
+
+                    try {
+
+                        System.out.print(
+                                "Enter Developer ID : ");
+                        int id = sc.nextInt();
+                        sc.nextLine();
+
+                        System.out.print(
+                                "Enter Name : ");
+                        String name = sc.nextLine();
+
+                        System.out.print(
+                                "Enter Basic Salary : ");
+                        double salary = sc.nextDouble();
+
+                        Developer d =
+                                new Developer(id,
+                                        name,
+                                        salary);
+
+                        double total =
+                                d.calculateSalary();
+
+                        d.display();
+
+                        System.out.println(
+                                "Developer Salary : "
+                                        + total);
+
+                    } catch (InvalidSalaryException e) {
+
+                        System.out.println(
+                                e.getMessage());
+                    }
+
+                    break;
+
+                case 6:
+
+                    System.out.println(
+                            "Exiting Program...");
+                    break;
+
+                default:
+
+                    System.out.println(
+                            "Invalid Choice!");
+            }
+
+        } while (choice != 6);
+
+        sc.close();
+    }
+}
+
+
+
+
+
+
+
+
+5)-------------------------------------------------------
+import java.io.*;
+import java.util.*;
+
+abstract class LibraryItem {
+
+    protected int bookId;
+    protected String title;
+
+    public LibraryItem(int bookId, String title) {
+        this.bookId = bookId;
+        this.title = title;
+    }
+
+    abstract void display();
+}
+
+class InvalidBookOperationException extends Exception {
+
+    public InvalidBookOperationException(String message) {
+        super(message);
+    }
+}
+
+class Book extends LibraryItem {
+
+    protected String author;
+    protected boolean available;
+
+    static Book[] books = new Book[100];
+    static int count = 0;
+
+    public Book(int bookId, String title,
+                String author, boolean available) {
+
+        super(bookId, title);
+
+        this.author = author;
+        this.available = available;
+    }
+
+    public void searchBook(String title) {
+
+        boolean found = false;
+
+        for (int i = 0; i < count; i++) {
+
+            if (books[i].title.equalsIgnoreCase(title)) {
+
+                books[i].display();
+                found = true;
+            }
+        }
+
+        if (!found) {
+            System.out.println("Book Not Found!");
+        }
+    }
+
+    public void searchBookByAuthor(String author) {
+
+        boolean found = false;
+
+        for (int i = 0; i < count; i++) {
+
+            if (books[i].author.equalsIgnoreCase(author)) {
+
+                books[i].display();
+                found = true;
+            }
+        }
+
+        if (!found) {
+            System.out.println("Author Not Found!");
+        }
+    }
+
+    public String generateIssueReport() {
+
+        String report = "\n===== ISSUE REPORT =====\n";
+        report += "Book ID : " + bookId + "\n";
+        report += "Title   : " + title.toUpperCase() + "\n";
+        report += "Author  : " + author + "\n";
+        report += "Status  : Issued\n";
+        report += "========================";
+
+        return report;
+    }
+
+    public void issueBook()
+            throws InvalidBookOperationException {
+
+        if (!available) {
+
+            throw new InvalidBookOperationException(
+                    "Book Already Issued!");
+        }
+
+        available = false;
+
+        saveToFile();
+    }
+
+    public void returnBook()
+            throws InvalidBookOperationException {
+
+        if (available) {
+
+            throw new InvalidBookOperationException(
+                    "Book Already Available!");
+        }
+
+        available = true;
+    }
+
+    public void saveToFile() {
+
+        try {
+
+            FileWriter fw =
+                    new FileWriter(
+                            "issued_books.txt", true);
+
+            fw.write("Book ID : " + bookId + "\n");
+            fw.write("Title   : " + title + "\n");
+            fw.write("Author  : " + author + "\n");
+            fw.write("------------------------\n");
+
+            fw.close();
+
+            System.out.println(
+                    "Issued Book Saved to File!");
+
+        } catch (IOException e) {
+
+            System.out.println("File Error!");
+        }
+    }
+
+    @Override
+    void display() {
+
+        System.out.println("\nBook ID : " + bookId);
+        System.out.println("Title   : " + title);
+        System.out.println("Author  : " + author);
+        System.out.println("Status  : "
+                + (available ? "Available"
+                : "Issued"));
+    }
+
+    static class LibraryRules {
+
+        public static void showRules() {
+
+            System.out.println(
+                    "\n===== LIBRARY RULES =====");
+
+            System.out.println(
+                    "1. Return books within 7 days");
+
+            System.out.println(
+                    "2. Keep books clean");
+
+            System.out.println(
+                    "3. Fine for late return");
+
+            System.out.println(
+                    "=========================");
+        }
+    }
+}
+
+class PrintedBook extends Book {
+
+    public PrintedBook(int bookId,
+                       String title,
+                       String author,
+                       boolean available) {
+
+        super(bookId, title,
+                author, available);
+    }
+
+    @Override
+    void display() {
+
+        System.out.println(
+                "\n--- Printed Book ---");
+
+        super.display();
+    }
+}
+
+class DigitalBook extends Book {
+
+    public DigitalBook(int bookId,
+                       String title,
+                       String author,
+                       boolean available) {
+
+        super(bookId, title,
+                author, available);
+    }
+
+    @Override
+    void display() {
+
+        System.out.println(
+                "\n--- Digital Book ---");
+
+        super.display();
+    }
+}
+
+class IssueProcess extends Thread {
+
+    private String title;
+
+    public IssueProcess(String title) {
+        this.title = title;
+    }
+
+    @Override
+    public void run() {
+
+        System.out.println(
+                "\nIssuing Book : " + title);
+
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+        }
+
+        System.out.println(
+                "Book Issue Completed!");
+    }
+}
+
+class ReturnProcess extends Thread {
+
+    private String title;
+
+    public ReturnProcess(String title) {
+        this.title = title;
+    }
+
+    @Override
+    public void run() {
+
+        System.out.println(
+                "\nReturning Book : " + title);
+
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+        }
+
+        System.out.println(
+                "Book Return Completed!");
+    }
+}
+
+public class LibraryManagementSystem {
+
+    public static void main(String[] args) {
+
+        Scanner sc = new Scanner(System.in);
+
+        int choice;
+
+        do {
+
+            System.out.println(
+                    "\n===== LIBRARY MANAGEMENT SYSTEM =====");
+
+            System.out.println("1. Add Book");
+            System.out.println("2. Display Books");
+            System.out.println("3. Search by Title");
+            System.out.println("4. Search by Author");
+            System.out.println("5. Issue Book");
+            System.out.println("6. Return Book");
+            System.out.println("7. Printed Book");
+            System.out.println("8. Digital Book");
+            System.out.println("9. Library Rules");
+            System.out.println("10. Exit");
+
+            System.out.print("Enter Choice : ");
+
+            choice = sc.nextInt();
+
+            switch (choice) {
+
+                case 1:
+
+                    System.out.print(
+                            "Enter Book ID : ");
+
+                    int id = sc.nextInt();
+                    sc.nextLine();
+
+                    System.out.print(
+                            "Enter Title : ");
+
+                    String title =
+                            sc.nextLine();
+
+                    System.out.print(
+                            "Enter Author : ");
+
+                    String author =
+                            sc.nextLine();
+
+                    Book b =
+                            new Book(id,
+                                    title,
+                                    author,
+                                    true);
+
+                    Book.books[Book.count] = b;
+
+                    Book.count++;
+
+                    System.out.println(
+                            "Book Added Successfully!");
+
+                    break;
+
+                case 2:
+
+                    if (Book.count == 0) {
+
+                        System.out.println(
+                                "No Books Available!");
+
+                    } else {
+
+                        for (int i = 0;
+                             i < Book.count; i++) {
+
+                            Book.books[i].display();
+                        }
+                    }
+
+                    break;
+
+                case 3:
+
+                    if (Book.count == 0) {
+
+                        System.out.println(
+                                "No Books Available!");
+
+                    } else {
+
+                        sc.nextLine();
+
+                        System.out.print(
+                                "Enter Title : ");
+
+                        String t =
+                                sc.nextLine();
+
+                        Book.books[0]
+                                .searchBook(t);
+                    }
+
+                    break;
+
+                case 4:
+
+                    if (Book.count == 0) {
+
+                        System.out.println(
+                                "No Books Available!");
+
+                    } else {
+
+                        sc.nextLine();
+
+                        System.out.print(
+                                "Enter Author : ");
+
+                        String a =
+                                sc.nextLine();
+
+                        Book.books[0]
+                                .searchBookByAuthor(a);
+                    }
+
+                    break;
+
+                case 5:
+
+                    if (Book.count == 0) {
+
+                        System.out.println(
+                                "No Books Available!");
+
+                    } else {
+
+                        try {
+
+                            Book.books[0]
+                                    .issueBook();
+
+                            System.out.println(
+                                    Book.books[0]
+                                            .generateIssueReport());
+
+                            IssueProcess ip =
+                                    new IssueProcess(
+                                            Book.books[0].title);
+
+                            ip.start();
+
+                        } catch (
+                                InvalidBookOperationException e) {
+
+                            System.out.println(
+                                    e.getMessage());
+                        }
+                    }
+
+                    break;
+
+                case 6:
+
+                    if (Book.count == 0) {
+
+                        System.out.println(
+                                "No Books Available!");
+
+                    } else {
+
+                        try {
+
+                            Book.books[0]
+                                    .returnBook();
+
+                            ReturnProcess rp =
+                                    new ReturnProcess(
+                                            Book.books[0].title);
+
+                            rp.start();
+
+                        } catch (
+                                InvalidBookOperationException e) {
+
+                            System.out.println(
+                                    e.getMessage());
+                        }
+                    }
+
+                    break;
+
+                case 7:
+
+                    PrintedBook pb =
+                            new PrintedBook(
+                                    101,
+                                    "Java Basics",
+                                    "James",
+                                    true);
+
+                    pb.display();
+
+                    break;
+
+                case 8:
+
+                    DigitalBook db =
+                            new DigitalBook(
+                                    201,
+                                    "Python Ebook",
+                                    "David",
+                                    true);
+
+                    db.display();
+
+                    break;
+
+                case 9:
+
+                    Book.LibraryRules.showRules();
+
+                    break;
+
+                case 10:
+
+                    System.out.println(
+                            "Exiting Program...");
+
+                    break;
+
+                default:
+
+                    System.out.println(
+                            "Invalid Choice!");
+            }
+
+        } while (choice != 10);
+
+        sc.close();
+    }
+}
+
+
+
+
+6)--------------------------------------------------------------------
+import java.io.*;
+import java.util.*;
+
+abstract class Order {
+
+    protected int orderId;
+    protected String customerName;
+
+    public Order(int orderId, String customerName) {
+
+        this.orderId = orderId;
+        this.customerName = customerName;
+    }
+
+    abstract double calculateBill();
+}
+
+class InvalidQuantityException extends Exception {
+
+    public InvalidQuantityException(String message) {
+        super(message);
+    }
+}
+
+class BillDetails {
+
+    public void printBill(double amount) {
+
+        System.out.println("\n===== BILL DETAILS =====");
+        System.out.println("Total Amount : " + amount);
+        System.out.println("========================");
+    }
+}
+
+class FoodOrder extends Order {
+
+    protected String foodItem;
+    protected int quantity;
+    protected double price;
+
+    static FoodOrder[] orders = new FoodOrder[100];
+    static int count = 0;
+
+    public FoodOrder(int orderId,
+                     String customerName,
+                     String foodItem,
+                     int quantity,
+                     double price)
+            throws InvalidQuantityException {
+
+        super(orderId, customerName);
+
+        if (quantity <= 0) {
+
+            throw new InvalidQuantityException(
+                    "Invalid Quantity!");
+        }
+
+        this.foodItem = foodItem;
+        this.quantity = quantity;
+        this.price = price;
+    }
+
+    public double calculateBill(double deliveryCharge) {
+
+        return (quantity * price)
+                + deliveryCharge;
+    }
+
+    public double calculateBill(double deliveryCharge,
+                                double expressCharge) {
+
+        return (quantity * price)
+                + deliveryCharge
+                + expressCharge;
+    }
+
+    @Override
+    double calculateBill() {
+
+        return quantity * price;
+    }
+
+    public String generateInvoice(double amount) {
+
+        String invoice =
+                "\n======= CUSTOMER INVOICE =======\n";
+
+        invoice += "Order ID      : "
+                + orderId + "\n";
+
+        invoice += "Customer Name : "
+                + customerName.toUpperCase()
+                + "\n";
+
+        invoice += "Food Item     : "
+                + foodItem.toLowerCase()
+                + "\n";
+
+        invoice += "Quantity      : "
+                + quantity + "\n";
+
+        invoice += "Total Amount  : "
+                + amount + "\n";
+
+        invoice += "================================";
+
+        return invoice;
+    }
+
+    public void saveToFile(double amount) {
+
+        try {
+
+            FileWriter fw =
+                    new FileWriter(
+                            "orders.txt", true);
+
+            fw.write("Order ID : "
+                    + orderId + "\n");
+
+            fw.write("Customer : "
+                    + customerName + "\n");
+
+            fw.write("Food Item: "
+                    + foodItem + "\n");
+
+            fw.write("Quantity : "
+                    + quantity + "\n");
+
+            fw.write("Bill     : "
+                    + amount + "\n");
+
+            fw.write("--------------------------\n");
+
+            fw.close();
+
+            System.out.println(
+                    "Order Saved to File!");
+
+        } catch (IOException e) {
+
+            System.out.println("File Error!");
+        }
+    }
+
+    public void display() {
+
+        System.out.println("\nOrder ID      : "
+                + orderId);
+
+        System.out.println("Customer Name : "
+                + customerName);
+
+        System.out.println("Food Item     : "
+                + foodItem);
+
+        System.out.println("Quantity      : "
+                + quantity);
+
+        System.out.println("Price         : "
+                + price);
+    }
+}
+
+class VegOrder extends FoodOrder {
+
+    public VegOrder(int orderId,
+                    String customerName,
+                    String foodItem,
+                    int quantity,
+                    double price)
+            throws InvalidQuantityException {
+
+        super(orderId,
+                customerName,
+                foodItem,
+                quantity,
+                price);
+    }
+
+    @Override
+    double calculateBill() {
+
+        return (quantity * price) + 50;
+    }
+}
+
+class NonVegOrder extends FoodOrder {
+
+    public NonVegOrder(int orderId,
+                       String customerName,
+                       String foodItem,
+                       int quantity,
+                       double price)
+            throws InvalidQuantityException {
+
+        super(orderId,
+                customerName,
+                foodItem,
+                quantity,
+                price);
+    }
+
+    @Override
+    double calculateBill() {
+
+        return (quantity * price) + 100;
+    }
+}
+
+class CookingProcess extends Thread {
+
+    private String foodItem;
+
+    public CookingProcess(String foodItem) {
+
+        this.foodItem = foodItem;
+    }
+
+    @Override
+    public void run() {
+
+        System.out.println(
+                "\nCooking Started for "
+                        + foodItem);
+
+        try {
+
+            Thread.sleep(2000);
+
+        } catch (InterruptedException e) {
+        }
+
+        System.out.println(
+                "Cooking Completed!");
+    }
+}
+
+class DeliveryTracking extends Thread {
+
+    private String customerName;
+
+    public DeliveryTracking(String customerName) {
+
+        this.customerName = customerName;
+    }
+
+    @Override
+    public void run() {
+
+        System.out.println(
+                "\nDelivery Started for "
+                        + customerName);
+
+        try {
+
+            Thread.sleep(3000);
+
+        } catch (InterruptedException e) {
+        }
+
+        System.out.println(
+                "Order Delivered!");
+    }
+}
+
+public class OnlineFoodDeliverySystem {
+
+    public static void main(String[] args) {
+
+        Scanner sc = new Scanner(System.in);
+
+        int choice;
+
+        do {
+
+            System.out.println(
+                    "\n===== ONLINE FOOD DELIVERY SYSTEM =====");
+
+            System.out.println("1. Add Order");
+            System.out.println("2. Display Orders");
+            System.out.println("3. Generate Bill");
+            System.out.println("4. Veg Order");
+            System.out.println("5. NonVeg Order");
+            System.out.println("6. Exit");
+
+            System.out.print("Enter Choice : ");
+
+            choice = sc.nextInt();
+
+            switch (choice) {
+
+                case 1:
+
+                    try {
+
+                        System.out.print(
+                                "Enter Order ID : ");
+
+                        int id = sc.nextInt();
+                        sc.nextLine();
+
+                        System.out.print(
+                                "Enter Customer Name : ");
+
+                        String name =
+                                sc.nextLine();
+
+                        System.out.print(
+                                "Enter Food Item : ");
+
+                        String item =
+                                sc.nextLine();
+
+                        System.out.print(
+                                "Enter Quantity : ");
+
+                        int qty =
+                                sc.nextInt();
+
+                        System.out.print(
+                                "Enter Price : ");
+
+                        double price =
+                                sc.nextDouble();
+
+                        FoodOrder fo =
+                                new FoodOrder(
+                                        id,
+                                        name,
+                                        item,
+                                        qty,
+                                        price);
+
+                        FoodOrder.orders[
+                                FoodOrder.count] = fo;
+
+                        FoodOrder.count++;
+
+                        System.out.println(
+                                "Order Added Successfully!");
+
+                    } catch (
+                            InvalidQuantityException e) {
+
+                        System.out.println(
+                                e.getMessage());
+                    }
+
+                    break;
+
+                case 2:
+
+                    if (FoodOrder.count == 0) {
+
+                        System.out.println(
+                                "No Orders Available!");
+
+                    } else {
+
+                        for (int i = 0;
+                             i < FoodOrder.count;
+                             i++) {
+
+                            FoodOrder.orders[i]
+                                    .display();
+                        }
+                    }
+
+                    break;
+
+                case 3:
+
+                    if (FoodOrder.count == 0) {
+
+                        System.out.println(
+                                "No Orders Available!");
+
+                    } else {
+
+                        System.out.print(
+                                "Enter Delivery Charge : ");
+
+                        double delivery =
+                                sc.nextDouble();
+
+                        System.out.print(
+                                "Enter Express Charge : ");
+
+                        double express =
+                                sc.nextDouble();
+
+                        double amount =
+                                FoodOrder.orders[0]
+                                        .calculateBill(
+                                                delivery,
+                                                express);
+
+                        System.out.println(
+                                FoodOrder.orders[0]
+                                        .generateInvoice(
+                                                amount));
+
+                        BillDetails bd =
+                                new BillDetails();
+
+                        bd.printBill(amount);
+
+                        CookingProcess cp =
+                                new CookingProcess(
+                                        FoodOrder.orders[0]
+                                                .foodItem);
+
+                        DeliveryTracking dt =
+                                new DeliveryTracking(
+                                        FoodOrder.orders[0]
+                                                .customerName);
+
+                        cp.start();
+                        dt.start();
+
+                        FoodOrder.orders[0]
+                                .saveToFile(amount);
+
+                    }
+
+                    break;
+
+                case 4:
+
+                    try {
+
+                        System.out.print(
+                                "Enter Order ID : ");
+
+                        int id = sc.nextInt();
+                        sc.nextLine();
+
+                        System.out.print(
+                                "Enter Customer Name : ");
+
+                        String name =
+                                sc.nextLine();
+
+                        System.out.print(
+                                "Enter Veg Item : ");
+
+                        String item =
+                                sc.nextLine();
+
+                        System.out.print(
+                                "Enter Quantity : ");
+
+                        int qty =
+                                sc.nextInt();
+
+                        System.out.print(
+                                "Enter Price : ");
+
+                        double price =
+                                sc.nextDouble();
+
+                        VegOrder vo =
+                                new VegOrder(
+                                        id,
+                                        name,
+                                        item,
+                                        qty,
+                                        price);
+
+                        vo.display();
+
+                        System.out.println(
+                                "Veg Bill : "
+                                        + vo.calculateBill());
+
+                    } catch (
+                            InvalidQuantityException e) {
+
+                        System.out.println(
+                                e.getMessage());
+                    }
+
+                    break;
+
+                case 5:
+
+                    try {
+
+                        System.out.print(
+                                "Enter Order ID : ");
+
+                        int id = sc.nextInt();
+                        sc.nextLine();
+
+                        System.out.print(
+                                "Enter Customer Name : ");
+
+                        String name =
+                                sc.nextLine();
+
+                        System.out.print(
+                                "Enter NonVeg Item : ");
+
+                        String item =
+                                sc.nextLine();
+
+                        System.out.print(
+                                "Enter Quantity : ");
+
+                        int qty =
+                                sc.nextInt();
+
+                        System.out.print(
+                                "Enter Price : ");
+
+                        double price =
+                                sc.nextDouble();
+
+                        NonVegOrder no =
+                                new NonVegOrder(
+                                        id,
+                                        name,
+                                        item,
+                                        qty,
+                                        price);
+
+                        no.display();
+
+                        System.out.println(
+                                "NonVeg Bill : "
+                                        + no.calculateBill());
+
+                    } catch (
+                            InvalidQuantityException e) {
+
+                        System.out.println(
+                                e.getMessage());
+                    }
+
+                    break;
+
+                case 6:
+
+                    System.out.println(
+                            "Exiting Program...");
+                    break;
+
+                default:
+
+                    System.out.println(
+                            "Invalid Choice!");
+            }
+
+        } while (choice != 6);
+
+        sc.close();
+    }
+}
