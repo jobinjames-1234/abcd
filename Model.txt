@@ -1,0 +1,1490 @@
+"""
+STUDENT PERFORMANCE INTELLIGENCE SYSTEM
+=======================================
+
+A single-file Data Science + Machine Learning lab revision project.
+
+This file combines the important practical concepts covered in the
+39-point project explanation:
+
+1. Create/load data
+2. Pandas DataFrame
+3. head(), tail(), shape, info(), describe()
+4. Mean, median, mode, max, min, sum, std, variance
+5. Missing-value detection
+6. Missing-value filling
+7. Duplicate detection/removal
+8. Feature engineering
+9. Grade creation
+10. Ranking
+11. GroupBy analysis
+12. Filtering
+13. CSV export
+14. Matplotlib line plot
+15. Bar chart
+16. Histogram
+17. Pie chart
+18. Scatter plot
+19. Box plot
+20. Seaborn count plot
+21. Seaborn bar plot
+22. Violin plot
+23. Strip plot
+24. Correlation heatmap
+25. Feature/target separation
+26. Train/test split
+27. Min-Max scaling
+28. Euclidean distance
+29. k-NN from scratch
+30. Weighted k-NN
+31. Bayes theorem
+32. Naive Bayes concept/demo
+33. Text classification with CountVectorizer
+34. Laplace smoothing
+35. Decision Tree
+36. Entropy
+37. Information Gain
+38. Prediction
+39. Evaluation
+
+Run with:
+    python model.py
+
+Required packages:
+    pandas
+    numpy
+    matplotlib
+    seaborn
+    scikit-learn
+"""
+
+# ============================================================
+# 0. IMPORT LIBRARIES
+# ============================================================
+
+import math
+import numpy as np
+import pandas as pd
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import MinMaxScaler, StandardScaler, LabelEncoder
+from sklearn.metrics import (
+    accuracy_score,
+    confusion_matrix,
+    classification_report,
+)
+from sklearn.naive_bayes import MultinomialNB
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.tree import DecisionTreeClassifier, plot_tree
+
+
+# ============================================================
+# 1. CREATE THE DATASET
+# ============================================================
+# WHAT:
+#     Create a small student dataset.
+#
+# WHY:
+#     A DataFrame is the main table we will analyze.
+#
+# IN AN EXAM:
+#     You may instead use:
+#         df = pd.read_csv("students.csv")
+# ============================================================
+
+data = {
+    "Student": [
+        "Arun", "Rahul", "Anu", "Meera", "John",
+        "Sara", "David", "Akhil", "Neha", "Kevin",
+        "Riya", "Tom", "Vishnu", "Maria", "Alan"
+    ],
+
+    # One missing Age is deliberately included so that we can
+    # demonstrate missing-value handling.
+    "Age": [
+        20, 21, 20, 22, 21,
+        20, 23, 21, np.nan, 22,
+        20, 24, 21, 22, 23
+    ],
+
+    "Gender": [
+        "Male", "Male", "Female", "Female", "Male",
+        "Female", "Male", "Male", "Female", "Male",
+        "Female", "Male", "Male", "Female", "Male"
+    ],
+
+    "Department": [
+        "MCA", "MCA", "BCA", "MCA", "BCA",
+        "MCA", "BCA", "MCA", "BCA", "MCA",
+        "MCA", "BCA", "MCA", "BCA", "MCA"
+    ],
+
+    "Attendance": [
+        90, 75, 95, 80, 65,
+        88, 70, 92, 85, 60,
+        94, 72, 89, 78, 96
+    ],
+
+    "StudyHours": [
+        5, 3, 6, 4, 2,
+        5, 3, 6, 4, 2,
+        7, 3, 5, 4, 7
+    ],
+
+    "Assignments": [
+        9, 7, 10, 8, 5,
+        9, 6, 10, 8, 4,
+        10, 6, 9, 7, 10
+    ],
+
+    "InternalMarks": [
+        82, 65, 90, 75, 52,
+        80, 60, 88, 72, 48,
+        94, 58, 85, 70, 96
+    ],
+
+    "FinalMarks": [
+        85, 68, 92, 78, 55,
+        83, 63, 91, 75, 50,
+        96, 61, 88, 73, 98
+    ],
+
+    "Result": [
+        "Pass", "Pass", "Pass", "Pass", "Fail",
+        "Pass", "Fail", "Pass", "Pass", "Fail",
+        "Pass", "Fail", "Pass", "Pass", "Pass"
+    ]
+}
+
+df = pd.DataFrame(data)
+
+print("\n" + "=" * 70)
+print("1. ORIGINAL DATASET")
+print("=" * 70)
+print(df)
+
+
+# ============================================================
+# 2. LOAD A CSV (EXAM VERSION)
+# ============================================================
+# WHAT:
+#     Read an existing CSV file.
+#
+# WHY:
+#     In a real lab, the dataset is often supplied as a CSV.
+#
+# EXAM:
+#     Uncomment the following line and change the filename:
+#
+#     df = pd.read_csv("students.csv")
+# ============================================================
+
+# df = pd.read_csv("students.csv")
+
+
+# ============================================================
+# 3. BASIC DATA INSPECTION
+# ============================================================
+
+print("\n" + "=" * 70)
+print("3. DATA INSPECTION")
+print("=" * 70)
+
+# First five records
+print("\nFirst 5 rows:")
+print(df.head())
+
+# Last five records
+print("\nLast 5 rows:")
+print(df.tail())
+
+# Number of rows and columns
+print("\nShape (rows, columns):")
+print(df.shape)
+
+# Column names, data types, non-null counts
+print("\nData information:")
+df.info()
+
+# Statistical summary of numerical columns
+print("\nStatistical summary:")
+print(df.describe())
+
+
+# ============================================================
+# 4. BASIC STATISTICS
+# ============================================================
+# WHAT:
+#     Calculate common descriptive statistics.
+#
+# WHY:
+#     These are basic Data Science operations and common lab
+#     questions.
+# ============================================================
+
+print("\n" + "=" * 70)
+print("4. STATISTICS FOR FINAL MARKS")
+print("=" * 70)
+
+print("Mean:", df["FinalMarks"].mean())
+print("Median:", df["FinalMarks"].median())
+print("Mode:")
+print(df["FinalMarks"].mode())
+print("Maximum:", df["FinalMarks"].max())
+print("Minimum:", df["FinalMarks"].min())
+print("Sum:", df["FinalMarks"].sum())
+print("Standard deviation:", df["FinalMarks"].std())
+print("Variance:", df["FinalMarks"].var())
+
+
+# ============================================================
+# 5. FIND MISSING VALUES
+# ============================================================
+# WHAT:
+#     Count missing values in every column.
+#
+# WHY:
+#     ML algorithms generally need complete numerical input.
+# ============================================================
+
+print("\n" + "=" * 70)
+print("5. MISSING VALUES")
+print("=" * 70)
+
+print(df.isnull().sum())
+
+
+# ============================================================
+# 6. FILL MISSING VALUES
+# ============================================================
+# NUMERICAL:
+#     Use mean here.
+#
+# CATEGORICAL:
+#     Use mode.
+#
+# NOTE:
+#     The lab may ask you to compare mean and median. To try
+#     median instead, replace mean() with median().
+# ============================================================
+
+print("\n" + "=" * 70)
+print("6. FILLING MISSING VALUES")
+print("=" * 70)
+
+# Numerical column -> mean
+df["Age"] = df["Age"].fillna(df["Age"].mean())
+
+# Categorical column -> mode
+# There are no missing Department values in our current dataset,
+# but this demonstrates the exam pattern.
+df["Department"] = df["Department"].fillna(
+    df["Department"].mode()[0]
+)
+
+print("Missing values after filling:")
+print(df.isnull().sum())
+
+
+# ============================================================
+# 7. DUPLICATE CHECKING AND REMOVAL
+# ============================================================
+
+print("\n" + "=" * 70)
+print("7. DUPLICATES")
+print("=" * 70)
+
+print("Number of duplicate rows:", df.duplicated().sum())
+
+# Remove duplicates
+df = df.drop_duplicates()
+
+print("Shape after duplicate removal:", df.shape)
+
+
+# ============================================================
+# 8. FEATURE ENGINEERING: TOTAL MARKS
+# ============================================================
+# WHAT:
+#     Create a new column from existing columns.
+#
+# WHY:
+#     Creating useful new variables from raw data is called
+#     feature engineering.
+# ============================================================
+
+df["TotalMarks"] = (
+    df["InternalMarks"] +
+    df["FinalMarks"]
+)
+
+print("\n" + "=" * 70)
+print("8. FEATURE ENGINEERING")
+print("=" * 70)
+print(df[["Student", "InternalMarks", "FinalMarks", "TotalMarks"]])
+
+
+# ============================================================
+# 9. CREATE A GRADE COLUMN
+# ============================================================
+# WHAT:
+#     Convert numerical marks into categories.
+#
+# WHY:
+#     Sometimes we want a categorical representation.
+# ============================================================
+
+def calculate_grade(mark):
+    if mark >= 90:
+        return "A"
+    elif mark >= 75:
+        return "B"
+    elif mark >= 60:
+        return "C"
+    elif mark >= 50:
+        return "D"
+    else:
+        return "F"
+
+
+df["Grade"] = df["FinalMarks"].apply(calculate_grade)
+
+print("\n" + "=" * 70)
+print("9. GRADE COLUMN")
+print("=" * 70)
+print(df[["Student", "FinalMarks", "Grade"]])
+
+
+# ============================================================
+# 10. RANKING
+# ============================================================
+# WHAT:
+#     Rank students according to TotalMarks.
+#
+# WHY:
+#     Useful for finding top performers.
+# ============================================================
+
+df["Rank"] = df["TotalMarks"].rank(ascending=False)
+
+print("\n" + "=" * 70)
+print("10. RANKING")
+print("=" * 70)
+print(
+    df[
+        ["Student", "TotalMarks", "Rank"]
+    ].sort_values("Rank")
+)
+
+
+# ============================================================
+# 11. TOP AND BOTTOM STUDENTS
+# ============================================================
+
+print("\nTop 5 students:")
+print(df.nlargest(5, "TotalMarks"))
+
+print("\nBottom 5 students:")
+print(df.nsmallest(5, "TotalMarks"))
+
+
+# ============================================================
+# 12. GROUPBY ANALYSIS
+# ============================================================
+# WHAT:
+#     Group rows by a categorical variable and calculate
+#     statistics.
+#
+# WHY:
+#     Example: compare departments.
+# ============================================================
+
+print("\n" + "=" * 70)
+print("12. DEPARTMENT-WISE ANALYSIS")
+print("=" * 70)
+
+print("\nAverage final marks:")
+print(
+    df.groupby("Department")["FinalMarks"].mean()
+)
+
+print("\nMaximum final marks:")
+print(
+    df.groupby("Department")["FinalMarks"].max()
+)
+
+print("\nMinimum final marks:")
+print(
+    df.groupby("Department")["FinalMarks"].min()
+)
+
+
+# ============================================================
+# 13. FILTERING
+# ============================================================
+# WHAT:
+#     Select only rows satisfying a condition.
+#
+# WHY:
+#     Useful for targeted analysis.
+# ============================================================
+
+average_marks = df["FinalMarks"].mean()
+
+above_average = df[
+    df["FinalMarks"] > average_marks
+]
+
+print("\n" + "=" * 70)
+print("13. STUDENTS ABOVE AVERAGE")
+print("=" * 70)
+print(above_average)
+
+
+# ============================================================
+# 14. EXPORT PROCESSED DATA
+# ============================================================
+# index=False prevents Pandas from adding an extra index column.
+# ============================================================
+
+df.to_csv(
+    "Processed_Report.csv",
+    index=False
+)
+
+print("\nProcessed data saved as Processed_Report.csv")
+
+
+# ============================================================
+# 15-24. DATA VISUALIZATION
+# ============================================================
+# Each plot is displayed separately.
+# Close one graph window to continue to the next.
+# ============================================================
+
+
+# ------------------------------------------------------------
+# 15. LINE PLOT
+# ------------------------------------------------------------
+
+plt.figure(figsize=(10, 5))
+
+plt.plot(
+    df["Student"],
+    df["FinalMarks"],
+    marker="o"
+)
+
+plt.title("Student Final Marks")
+plt.xlabel("Student")
+plt.ylabel("Final Marks")
+plt.xticks(rotation=45)
+plt.grid()
+plt.tight_layout()
+plt.show()
+
+
+# ------------------------------------------------------------
+# 16. BAR CHART
+# ------------------------------------------------------------
+
+department_counts = df["Department"].value_counts()
+
+plt.figure(figsize=(7, 5))
+
+plt.bar(
+    department_counts.index,
+    department_counts.values
+)
+
+plt.title("Students by Department")
+plt.xlabel("Department")
+plt.ylabel("Number of Students")
+
+plt.tight_layout()
+plt.show()
+
+
+# ------------------------------------------------------------
+# 17. HISTOGRAM
+# ------------------------------------------------------------
+
+plt.figure(figsize=(7, 5))
+
+plt.hist(
+    df["FinalMarks"],
+    bins=5
+)
+
+plt.title("Distribution of Final Marks")
+plt.xlabel("Final Marks")
+plt.ylabel("Frequency")
+
+plt.tight_layout()
+plt.show()
+
+
+# ------------------------------------------------------------
+# 18. PIE CHART
+# ------------------------------------------------------------
+
+result_counts = df["Result"].value_counts()
+
+plt.figure(figsize=(7, 7))
+
+plt.pie(
+    result_counts.values,
+    labels=result_counts.index,
+    autopct="%1.1f%%"
+)
+
+plt.title("Pass vs Fail")
+plt.show()
+
+
+# ------------------------------------------------------------
+# 19. SCATTER PLOT
+# ------------------------------------------------------------
+# Shows the relationship between StudyHours and FinalMarks.
+# ------------------------------------------------------------
+
+plt.figure(figsize=(7, 5))
+
+plt.scatter(
+    df["StudyHours"],
+    df["FinalMarks"]
+)
+
+plt.xlabel("Study Hours")
+plt.ylabel("Final Marks")
+plt.title("Study Hours vs Final Marks")
+
+plt.tight_layout()
+plt.show()
+
+
+# ------------------------------------------------------------
+# 20. BOX PLOT
+# ------------------------------------------------------------
+
+plt.figure(figsize=(7, 5))
+
+plt.boxplot(
+    df["FinalMarks"]
+)
+
+plt.title("Box Plot of Final Marks")
+plt.ylabel("Final Marks")
+
+plt.tight_layout()
+plt.show()
+
+
+# ------------------------------------------------------------
+# 21. SEABORN COUNT PLOT
+# ------------------------------------------------------------
+
+plt.figure(figsize=(7, 5))
+
+sns.countplot(
+    x="Department",
+    data=df
+)
+
+plt.title("Student Count by Department")
+plt.tight_layout()
+plt.show()
+
+
+# ------------------------------------------------------------
+# 22. SEABORN BAR PLOT
+# ------------------------------------------------------------
+
+plt.figure(figsize=(7, 5))
+
+sns.barplot(
+    x="Department",
+    y="FinalMarks",
+    data=df
+)
+
+plt.title("Final Marks by Department")
+plt.tight_layout()
+plt.show()
+
+
+# ------------------------------------------------------------
+# 23. SEABORN VIOLIN PLOT
+# ------------------------------------------------------------
+
+plt.figure(figsize=(7, 5))
+
+sns.violinplot(
+    x="Department",
+    y="FinalMarks",
+    data=df
+)
+
+plt.title("Final Mark Distribution by Department")
+plt.tight_layout()
+plt.show()
+
+
+# ------------------------------------------------------------
+# 24. SEABORN STRIP PLOT
+# ------------------------------------------------------------
+
+plt.figure(figsize=(7, 5))
+
+sns.stripplot(
+    x="Department",
+    y="FinalMarks",
+    data=df
+)
+
+plt.title("Individual Final Marks by Department")
+plt.tight_layout()
+plt.show()
+
+
+# ------------------------------------------------------------
+# 25. CORRELATION HEATMAP
+# ------------------------------------------------------------
+# WHAT:
+#     Show correlations between numerical variables.
+#
+# WHY:
+#     Helps identify relationships between features.
+# ------------------------------------------------------------
+
+numeric_df = df.select_dtypes(include="number")
+
+correlation = numeric_df.corr()
+
+plt.figure(figsize=(10, 7))
+
+sns.heatmap(
+    correlation,
+    annot=True
+)
+
+plt.title("Correlation Heatmap")
+plt.tight_layout()
+plt.show()
+
+
+# ============================================================
+# 26. MACHINE LEARNING: SELECT FEATURES AND TARGET
+# ============================================================
+# X = input/features
+# y = target/output
+#
+# We deliberately DO NOT use Student, Gender or Department in
+# the main k-NN model because they are categorical/text fields.
+# ============================================================
+
+features = [
+    "Attendance",
+    "StudyHours",
+    "Assignments",
+    "InternalMarks",
+    "FinalMarks"
+]
+
+X = df[features]
+y = df["Result"]
+
+print("\n" + "=" * 70)
+print("26. FEATURES AND TARGET")
+print("=" * 70)
+
+print("Features (X):")
+print(X.head())
+
+print("\nTarget (y):")
+print(y.head())
+
+
+# ============================================================
+# 27. TRAIN/TEST SPLIT
+# ============================================================
+# WHAT:
+#     Split data into training and testing portions.
+#
+# WHY:
+#     Training data teaches the model.
+#     Test data checks the model on unseen examples.
+# ============================================================
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X,
+    y,
+    test_size=0.20,
+    random_state=42,
+    stratify=y
+)
+
+print("\nTraining rows:", len(X_train))
+print("Testing rows:", len(X_test))
+
+
+# ============================================================
+# 28. MIN-MAX SCALING
+# ============================================================
+# WHAT:
+#     Convert each feature approximately to the range 0 to 1.
+#
+# WHY:
+#     k-NN uses distances. Large-scale features could otherwise
+#     dominate smaller-scale features.
+#
+# IMPORTANT:
+#     fit_transform() only on training data.
+#     transform() on test data using the same learned scaler.
+# ============================================================
+
+minmax_scaler = MinMaxScaler()
+
+X_train_scaled = minmax_scaler.fit_transform(X_train)
+X_test_scaled = minmax_scaler.transform(X_test)
+
+print("\nScaled training data:")
+print(X_train_scaled[:5])
+
+
+# ============================================================
+# OPTIONAL: Z-SCORE STANDARDIZATION
+# ============================================================
+# This is included because your lab asks about comparing
+# Min-Max scaling and Z-score standardization.
+# ============================================================
+
+standard_scaler = StandardScaler()
+
+X_train_standardized = standard_scaler.fit_transform(X_train)
+X_test_standardized = standard_scaler.transform(X_test)
+
+print("\nStandardized training data:")
+print(X_train_standardized[:5])
+
+
+# ============================================================
+# 29. EUCLIDEAN DISTANCE
+# ============================================================
+# WHAT:
+#     Measure the straight-line distance between two points.
+#
+# FORMULA:
+#     sqrt(sum((x_i - y_i)^2))
+#
+# WHY:
+#     k-NN uses distance to find nearby observations.
+# ============================================================
+
+def euclidean_distance(point1, point2):
+    difference = point1 - point2
+    squared = difference ** 2
+    total = np.sum(squared)
+
+    return np.sqrt(total)
+
+
+# Small demonstration
+point_a = np.array([2, 3])
+point_b = np.array([5, 7])
+
+print("\n" + "=" * 70)
+print("29. EUCLIDEAN DISTANCE DEMO")
+print("=" * 70)
+
+print(
+    "Distance between [2,3] and [5,7]:",
+    euclidean_distance(point_a, point_b)
+)
+
+
+# ============================================================
+# 30. k-NN FROM SCRATCH
+# ============================================================
+# WHAT:
+#     Classify a new point based on its k closest training points.
+#
+# PROCESS:
+#     1. Calculate distances
+#     2. Sort distances
+#     3. Select k neighbours
+#     4. Majority vote
+#
+# IMPORTANT:
+#     This is intentionally implemented manually rather than
+#     using KNeighborsClassifier.
+# ============================================================
+
+def knn_predict(X_train, y_train, test_point, k=3):
+
+    distances = []
+
+    # Calculate distance to every training point
+    for i in range(len(X_train)):
+
+        distance = euclidean_distance(
+            X_train[i],
+            test_point
+        )
+
+        distances.append(
+            (distance, y_train.iloc[i])
+        )
+
+    # Nearest first
+    distances.sort(
+        key=lambda x: x[0]
+    )
+
+    # Select k nearest
+    neighbours = distances[:k]
+
+    # Get their labels
+    labels = [
+        label
+        for distance, label in neighbours
+    ]
+
+    # Majority vote
+    prediction = max(
+        set(labels),
+        key=labels.count
+    )
+
+    return prediction
+
+
+# Reset index because y_train retains its original DataFrame index.
+y_train_reset = y_train.reset_index(drop=True)
+
+knn_predictions = []
+
+for point in X_test_scaled:
+
+    prediction = knn_predict(
+        X_train_scaled,
+        y_train_reset,
+        point,
+        k=3
+    )
+
+    knn_predictions.append(prediction)
+
+print("\n" + "=" * 70)
+print("30. k-NN PREDICTIONS")
+print("=" * 70)
+
+print("Actual:")
+print(list(y_test))
+
+print("\nPredicted:")
+print(knn_predictions)
+
+
+# ============================================================
+# 31. WEIGHTED k-NN
+# ============================================================
+# WHAT:
+#     Give closer neighbours more influence.
+#
+# FORMULA:
+#     weight = 1 / (distance + epsilon)
+#
+# WHY:
+#     A very close neighbour should matter more than a distant
+#     neighbour.
+# ============================================================
+
+def weighted_knn_predict(
+    X_train,
+    y_train,
+    test_point,
+    k=3,
+    epsilon=0.0001
+):
+
+    distances = []
+
+    for i in range(len(X_train)):
+
+        distance = euclidean_distance(
+            X_train[i],
+            test_point
+        )
+
+        distances.append(
+            (distance, y_train.iloc[i])
+        )
+
+    distances.sort(
+        key=lambda x: x[0]
+    )
+
+    neighbours = distances[:k]
+
+    votes = {}
+
+    for distance, label in neighbours:
+
+        weight = 1 / (distance + epsilon)
+
+        votes[label] = (
+            votes.get(label, 0) + weight
+        )
+
+    return max(
+        votes,
+        key=votes.get
+    )
+
+
+weighted_predictions = []
+
+for point in X_test_scaled:
+
+    prediction = weighted_knn_predict(
+        X_train_scaled,
+        y_train_reset,
+        point,
+        k=3
+    )
+
+    weighted_predictions.append(prediction)
+
+print("\n" + "=" * 70)
+print("31. WEIGHTED k-NN")
+print("=" * 70)
+
+print("Actual:")
+print(list(y_test))
+
+print("\nWeighted predictions:")
+print(weighted_predictions)
+
+
+# ============================================================
+# 32. BAYES THEOREM
+# ============================================================
+# GENERAL FORM:
+#
+#       P(B|A) * P(A)
+# P(A|B) = -----------
+#             P(B)
+#
+# The values below are the example used in the lab discussion:
+# P(A) = 10%
+# P(B) = 5%
+# P(B|A) = 7%
+#
+# Result = 14%
+# ============================================================
+
+P_A = 0.10
+P_B = 0.05
+P_B_given_A = 0.07
+
+P_A_given_B = (
+    P_B_given_A * P_A
+) / P_B
+
+print("\n" + "=" * 70)
+print("32. BAYES THEOREM")
+print("=" * 70)
+
+print(
+    "P(A|B) =",
+    P_A_given_B
+)
+
+print(
+    "P(A|B) percentage =",
+    P_A_given_B * 100,
+    "%"
+)
+
+
+# ============================================================
+# 33. NAIVE BAYES WITH A SMALL WEATHER DATASET
+# ============================================================
+# This demonstrates the basic idea:
+#     prior probability
+#     conditional probability
+#     class score
+#     prediction
+#
+# For a production/scikit-learn implementation, see the text
+# classification section below.
+# ============================================================
+
+weather_data = pd.DataFrame({
+    "Outlook": [
+        "Sunny", "Sunny", "Overcast", "Rain", "Rain",
+        "Rain", "Overcast", "Sunny", "Sunny", "Rain",
+        "Sunny", "Overcast", "Overcast", "Rain"
+    ],
+    "Temperature": [
+        "Hot", "Hot", "Hot", "Mild", "Cool",
+        "Cool", "Cool", "Mild", "Cool", "Mild",
+        "Mild", "Mild", "Hot", "Mild"
+    ],
+    "Humidity": [
+        "High", "High", "High", "High", "Normal",
+        "Normal", "Normal", "High", "Normal", "Normal",
+        "Normal", "High", "Normal", "High"
+    ],
+    "Wind": [
+        "Weak", "Strong", "Weak", "Weak", "Weak",
+        "Strong", "Strong", "Weak", "Weak", "Weak",
+        "Strong", "Strong", "Weak", "Strong"
+    ],
+    "Play": [
+        "No", "No", "Yes", "Yes", "Yes",
+        "No", "Yes", "No", "Yes", "Yes",
+        "Yes", "Yes", "Yes", "No"
+    ]
+})
+
+print("\n" + "=" * 70)
+print("33. WEATHER DATA FOR NAIVE BAYES")
+print("=" * 70)
+print(weather_data)
+
+
+# ============================================================
+# 34. LAPLACE SMOOTHING
+# ============================================================
+# WHAT:
+#     Prevent zero probabilities.
+#
+# FORMULA:
+#     (count + 1) / (total + number_of_possible_values)
+# ============================================================
+
+def laplace_probability(
+    count,
+    total,
+    number_of_categories
+):
+    return (
+        (count + 1)
+        /
+        (total + number_of_categories)
+    )
+
+
+# Example:
+# Suppose a category appears zero times among 9 examples
+# and there are 3 possible categories.
+zero_probability = 0 / 9
+
+smoothed_probability = laplace_probability(
+    count=0,
+    total=9,
+    number_of_categories=3
+)
+
+print("\n" + "=" * 70)
+print("34. LAPLACE SMOOTHING")
+print("=" * 70)
+
+print("Without smoothing:", zero_probability)
+print("With smoothing:", smoothed_probability)
+
+
+# ============================================================
+# 35. NAIVE BAYES TEXT CLASSIFICATION
+# ============================================================
+# WHAT:
+#     Convert text to word-count vectors and classify sentiment.
+#
+# PROCESS:
+#     Text
+#       ↓
+#     CountVectorizer
+#       ↓
+#     Numerical feature matrix
+#       ↓
+#     Multinomial Naive Bayes
+#       ↓
+#     Prediction
+# ============================================================
+
+sentences = [
+    "I love this college",
+    "This college is excellent",
+    "The teachers are wonderful",
+    "The classes are very good",
+    "I hate this college",
+    "This college is terrible",
+    "The teachers are bad",
+    "The classes are very poor"
+]
+
+sentiment_labels = [
+    "Positive",
+    "Positive",
+    "Positive",
+    "Positive",
+    "Negative",
+    "Negative",
+    "Negative",
+    "Negative"
+]
+
+vectorizer = CountVectorizer()
+
+X_text = vectorizer.fit_transform(
+    sentences
+)
+
+text_model = MultinomialNB()
+
+text_model.fit(
+    X_text,
+    sentiment_labels
+)
+
+new_message = [
+    "I love the teachers"
+]
+
+new_vector = vectorizer.transform(
+    new_message
+)
+
+text_prediction = text_model.predict(
+    new_vector
+)
+
+print("\n" + "=" * 70)
+print("35. TEXT NAIVE BAYES")
+print("=" * 70)
+
+print(
+    "Prediction for:",
+    new_message[0]
+)
+
+print(
+    "Prediction:",
+    text_prediction[0]
+)
+
+
+# ============================================================
+# 36. DECISION TREE
+# ============================================================
+# WHAT:
+#     Build a tree of decisions.
+#
+# WHY:
+#     The tree repeatedly selects useful features to split the
+#     data into purer groups.
+#
+# criterion="entropy" tells sklearn to use entropy/information
+# gain as the splitting criterion.
+# ============================================================
+
+tree_model = DecisionTreeClassifier(
+    criterion="entropy",
+    random_state=42,
+    max_depth=4
+)
+
+tree_model.fit(
+    X_train,
+    y_train
+)
+
+tree_predictions = tree_model.predict(
+    X_test
+)
+
+print("\n" + "=" * 70)
+print("36. DECISION TREE")
+print("=" * 70)
+
+print("Actual:")
+print(list(y_test))
+
+print("\nPredicted:")
+print(list(tree_predictions))
+
+
+# ============================================================
+# 37. ENTROPY FROM SCRATCH
+# ============================================================
+# WHAT:
+#     Measure impurity/uncertainty in a set of class labels.
+#
+# FORMULA:
+#     Entropy = -sum(p * log2(p))
+#
+# Pure data -> entropy 0
+# Mixed data -> higher entropy
+# ============================================================
+
+def entropy(labels):
+
+    # Count occurrences of each class
+    counts = pd.Series(labels).value_counts()
+
+    total = len(labels)
+
+    result = 0.0
+
+    for count in counts:
+
+        probability = count / total
+
+        # Ignore zero because log2(0) is undefined.
+        if probability > 0:
+
+            result -= (
+                probability
+                * math.log2(probability)
+            )
+
+    return result
+
+
+example_labels = [
+    "Yes",
+    "Yes",
+    "No",
+    "No"
+]
+
+print("\n" + "=" * 70)
+print("37. ENTROPY")
+print("=" * 70)
+
+print(
+    "Entropy of [Yes, Yes, No, No]:",
+    entropy(example_labels)
+)
+
+
+# ============================================================
+# 38. INFORMATION GAIN FROM SCRATCH
+# ============================================================
+# WHAT:
+#     Measure how much a split reduces entropy.
+#
+# FORMULA:
+#
+#     Information Gain
+#       = Parent Entropy
+#         - Weighted Child Entropy
+#
+# Higher gain = more useful split.
+# ============================================================
+
+def information_gain(parent_labels, child_groups):
+
+    parent_entropy = entropy(parent_labels)
+
+    total = len(parent_labels)
+
+    weighted_child_entropy = 0.0
+
+    for child in child_groups:
+
+        if len(child) == 0:
+            continue
+
+        weight = len(child) / total
+
+        weighted_child_entropy += (
+            weight * entropy(child)
+        )
+
+    gain = (
+        parent_entropy
+        - weighted_child_entropy
+    )
+
+    return gain
+
+
+parent = [
+    "Yes", "Yes", "Yes",
+    "No", "No", "No"
+]
+
+children = [
+    ["Yes", "Yes", "Yes"],
+    ["No", "No", "No"]
+]
+
+print("\n" + "=" * 70)
+print("38. INFORMATION GAIN")
+print("=" * 70)
+
+print(
+    "Parent entropy:",
+    entropy(parent)
+)
+
+print(
+    "Information gain:",
+    information_gain(
+        parent,
+        children
+    )
+)
+
+
+# ============================================================
+# 39. MODEL EVALUATION
+# ============================================================
+# WHAT:
+#     Compare actual answers with predictions.
+#
+# IMPORTANT:
+#     Accuracy = correct predictions / total predictions
+# ============================================================
+
+knn_accuracy = accuracy_score(
+    y_test,
+    knn_predictions
+)
+
+weighted_knn_accuracy = accuracy_score(
+    y_test,
+    weighted_predictions
+)
+
+tree_accuracy = accuracy_score(
+    y_test,
+    tree_predictions
+)
+
+print("\n" + "=" * 70)
+print("39. MODEL EVALUATION")
+print("=" * 70)
+
+print(
+    "k-NN Accuracy:",
+    knn_accuracy
+)
+
+print(
+    "Weighted k-NN Accuracy:",
+    weighted_knn_accuracy
+)
+
+print(
+    "Decision Tree Accuracy:",
+    tree_accuracy
+)
+
+
+# ------------------------------------------------------------
+# Confusion matrix for Decision Tree
+# ------------------------------------------------------------
+
+print("\nDecision Tree Confusion Matrix:")
+
+cm = confusion_matrix(
+    y_test,
+    tree_predictions,
+    labels=["Fail", "Pass"]
+)
+
+print(cm)
+
+
+print("\nDecision Tree Classification Report:")
+print(
+    classification_report(
+        y_test,
+        tree_predictions,
+        zero_division=0
+    )
+)
+
+
+# ============================================================
+# OPTIONAL: VISUALIZE THE DECISION TREE
+# ============================================================
+
+plt.figure(figsize=(18, 10))
+
+plot_tree(
+    tree_model,
+    feature_names=features,
+    class_names=tree_model.classes_,
+    filled=True
+)
+
+plt.title("Decision Tree")
+plt.tight_layout()
+plt.show()
+
+
+# ============================================================
+# FINAL SUMMARY
+# ============================================================
+
+print("\n" + "=" * 70)
+print("PROJECT COMPLETE")
+print("=" * 70)
+
+print("""
+You have now covered the complete pipeline:
+
+RAW DATA
+   ↓
+Pandas DataFrame
+   ↓
+Inspect data
+   ↓
+Statistics
+   ↓
+Missing-value handling
+   ↓
+Duplicate removal
+   ↓
+Feature engineering
+   ↓
+Grouping / filtering / ranking
+   ↓
+Visualization
+   ↓
+Feature selection
+   ↓
+Train/Test Split
+   ↓
+Scaling
+   ↓
+k-NN from scratch
+   ↓
+Weighted k-NN
+   ↓
+Bayes theorem
+   ↓
+Naive Bayes + Laplace
+   ↓
+Text classification
+   ↓
+Decision Tree
+   ↓
+Entropy
+   ↓
+Information Gain
+   ↓
+Prediction
+   ↓
+Evaluation
+""")
+
+print("Processed dataset: Processed_Report.csv")
